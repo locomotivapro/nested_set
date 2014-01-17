@@ -564,8 +564,12 @@ module CollectiveIdea #:nodoc:
             conditions = scope_column_names.inject({}) do |cnd, attr|
               cnd.merge attr => self[attr]
             end
-
-            self.class.base_class.order(q_left).where(conditions)
+            
+            if self.class.base_class.column_names.include?('deleted_at')
+              self.class.base_class.order(q_left).where('deleted_at IS NULL').where(conditions)
+            else
+              self.class.base_class.order(q_left).where(conditions)
+            end
           end
 
           def store_new_parent
